@@ -1,0 +1,3 @@
+*.pdf
+/scala-typeclasses/*.tex
+target/

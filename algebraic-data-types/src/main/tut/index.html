@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Algebriac Data Types</title>
+        <meta charset="utf-8">
+        <style>
+         @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+         @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+         @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+         body { font-family: 'Droid Serif'; }
+         h1, h2, h3 {
+             font-family: 'Yanone Kaffeesatz';
+             font-weight: normal;
+         }
+         small .MathJax_Display {
+             font-size: small;
+         }
+         .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+        </style>
+    </head>
+    <body>
+        <textarea id="source">
+
+class: center, middle
+
+# Algebraic Data Types
+### Free Algebras, constrained algebras and other examples.
+Rodolfo Hansen / @kryptt
+
+---
+
+# Index
+
+1. **Algebraic Data Types**.
+1. **Free Algebras**.
+1. **Equational Reasoning** at the program level.
+
+---
+
+#### Algebra
+
+Before we go into what makes a data type Algebraic let's get some common ground
+on what we mean by algebra in this more general sense:
+
+##### Things, operations and laws they obey.
+
+Like:
+* strings with concatenation and the associative law.
+* lists *(operations and laws ommited)*.
+* ints with addition and multiplication and the associative, commutative and distributive laws.
+
+---
+
+
+# Algebraic Data Types
+
+An algebraic data type is a missnomer.
+
+An algebraic data type is not *just* a data type, it's a data type *plus* an
+algebra.
+
+```tut:silent
+val a: Int = 5
+val b: Int = 6
+a + b == b + a
+val n: Option[Int] = None
+val s: Option[Int] = Some(a)
+s.map(_ + b).orElse(n).get
+```
+
+---
+
+## Algebraic Data Types in Scala
+
+The point of contention arises with regards to your own custom data types:
+
+```tut:fail
+sealed abstract trait DT
+case class MyADT(val a: Int) extends DT
+class MyNonADT(val a: Int) extends DT
+def x(dt: DT): Unit = dt match {
+case MyADT(a)    => ()
+case MyNonADT(a) => ()
+}
+```
+
+In the context of scala, case classes come with their own `apply` and `unapply`
+for a pattern matching algebra.
+
+<small>
+(If you look at regular expressions in pattern matching you might be pleasently
+surprised.)
+</small>
+
+---
+
+# Boolean Algebra
+
+Boolean algebra satisfies many of the same laws as arithmetic when one
+matches up ∨ with addition and ∧ with multiplication. In particular the following
+laws are common to both kinds of algebra:
+
+<small>
+\begin{align}
+&\text{Associativity of } \vee   & x \vee (y \vee z)
+                                 & = (x \vee y) \vee z \\\\
+&\text{Associativity of } \wedge & x \wedge (y \wedge z)
+                                 & = (x \wedge y) \wedge z \\\\
+&\text{Commutativity of } \vee   & x \vee y
+                                 & = y \vee x \\\\
+&\text{Commutativity of } \wedge & x \wedge y
+                                 & = y \wedge x \\\\
+&\text{Distributivity of } \wedge \text{ over } \vee \quad
+                                 & x \wedge (y \vee z)
+                                 & = (x \wedge y) \vee (x \wedge z) \\\\
+&\text{Identity for } \vee       & x \vee 0
+                                 & = x \\\\
+&\text{Identity for } \wedge     & x \wedge 1
+                                 & = x \\\\
+&\text{Annihilator for } \wedge  & x \wedge 0
+                                 & = 0 \\\\
+\end{align}
+</small>
+
+Boolean algebra however exhibits some additional laws, in particular the following:
+
+<small>
+\begin{align}
+&\text{Idempotence of } \vee & x \vee x & = x \\\\
+&\text{Idempotence of } \wedge & x \wedge x & = x \\\\
+&\text{Absorption 1} & x \wedge (x \vee y) & = x \\\\
+&\text{Absorption 2} & x \vee (x \wedge y) & = x \\\\
+&\text{Distributivity of } \vee \text{ over } \wedge \quad
+                     & x \vee (y \wedge z)
+                     & = (x \vee y) \wedge (x \vee z) \\\\
+&\text{Annihilator for } \vee & x \vee 1 & = 1
+\end{align}
+</small>
+
+---
+
+# References
+
+* [Algebraic Data Types](http://tpolecat.github.io/presentations/algebraic_types.html)
+by Rob Norris (@tpolecat)
+* [Sweeping crap APIs under the rug](http://tpolecat.github.io/presentations/lambdaconf14.html)
+by Rob Norris (@tpolecat)
+
+    </textarea>
+    <script src="http://gnab.github.io/remark/downloads/remark-latest.min.js" type="text/javascript"></script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured" type="text/javascript"></script><script>
+     var slideshow = remark.create();
+     // Setup MathJax
+     MathJax.Hub.Config({
+         tex2jax: {
+             skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+         }
+     });
+     MathJax.Hub.Queue(function() {
+         $(MathJax.Hub.getAllJax()).map(function(index, elem) {
+             return(elem.SourceElement());
+         }).parent().addClass('has-jax');
+     });
+
+     MathJax.Hub.Configured();
+    </script>
+  </body>
+</html>
