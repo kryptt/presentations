@@ -74,7 +74,7 @@ s.map(_ + b).orElse(n).get
 
 The point of contention arises with regards to your own custom data types:
 
-```tut:fail
+```tut:nofail
 sealed abstract trait DT
 case class MyADT(val a: Int) extends DT
 class MyNonADT(val a: Int) extends DT
