@@ -12,7 +12,7 @@
              font-family: 'Yanone Kaffeesatz';
              font-weight: normal;
          }
-         small .MathJax_Display {
+         small .MathJax_Display, small .remark-code {
              font-size: small;
          }
          .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
@@ -31,9 +31,14 @@ Rodolfo Hansen / @kryptt
 
 # Index
 
-1. **Algebraic Data Types**.
-1. **Free Algebras**.
-1. **Equational Reasoning** at the program level.
+1. **Data Types**.
+    * Algebraic data types.
+    * Generalized algebraic data types.
+    * Sum and product data types.
+1. **Algebras**.
+    * Boolean Algebra
+    * Free Algebra
+1. ~~**Equational Reasoning** at the program level.~~
 
 ---
 
@@ -53,8 +58,6 @@ Like:
 
 
 # Algebraic Data Types
-
-An algebraic data type is a missnomer.
 
 An algebraic data type is not *just* a data type, it's a data type *plus* an
 algebra.
@@ -85,11 +88,48 @@ case MyNonADT(a) => ()
 ```
 
 In the context of scala, case classes come with their own `apply` and `unapply`
-for a pattern matching algebra.
+for a structural (pattern matching) algebra.
 
 <small>
 (If you look at regular expressions in pattern matching you might be pleasently
 surprised.)
+</small>
+
+---
+
+# Generalized Algebraic Data Type
+
+As long as you trust inheritance
+
+<small>
+```tut
+sealed abstract trait Lam[A] {def a: A}
+case class Lift[A](a: A) extends Lam[A]
+case class Tup[A, B](_a: A, b: B) extends Lam[(A, B)] {def a  = (_a, b)}
+case class Lamda[A, B](f: Lam[A] => Lam[B]) extends Lam[A => B] {
+  def a = { _a => f(Lift(_a)).a }
+}
+case class App[A, B](f: Lam[A => B], _a: Lam[A]) extends Lam[B] {def a = f.a(_a.a)}
+case class Fix[A](f: Lam[A => A]) extends Lam[A] {
+  def a = Fix(Lift(_a => f.a(_a))).a
+}
+```
+</small>
+
+---
+
+# Sum Types and Product Types
+
+Structurally:
+
+```tut
+type Sum[A]      = Lam[A] // Lift ∨ Tup ∨ Lambda ∨ App ∨ Fix
+type Prod[A, B]  = Tup[A, B] // A ∧ B
+type Prod2[A, B] = (Lam[A], Lam[B]) // Lam[A] ∧ Lam[B]
+```
+
+<small>
+    [Sum and Product types as encoded by Shapeless 2.1.0](https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.1.0)
 </small>
 
 ---
@@ -143,6 +183,8 @@ Boolean algebra however exhibits some additional laws, in particular the followi
 
 * [Algebraic Data Types](http://tpolecat.github.io/presentations/algebraic_types.html)
 by Rob Norris (@tpolecat)
+* [Shapeless 2.1.0 Feature Overview](https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.1.0)
+* [I am not a monad, I am a free algebra](http://biosimilarity.blogspot.com/2011/08/i-am-not-monad-i-am-free-algebra-pt-1.html)
 * [Sweeping crap APIs under the rug](http://tpolecat.github.io/presentations/lambdaconf14.html)
 by Rob Norris (@tpolecat)
 
