@@ -1,0 +1,334 @@
+#+TITLE: A Hands-On Algebriac Approach to Software Construction
+#+INCLUDE: "./common.org"
+
+* Introduction:
+
+  This workshop series is about bringing together logic (constructive logic),
+  computation (scala), and composition (category theory) into the vocabulary and
+  tool-set of us mortal programmers; so there will be a lot of inter-connected
+  topics swimming around this workshop, so the more discussions we get going,
+  the more connections we should be able to share between these subjects.
+
+  These three ideas come together very nicely in terms of constructing
+  maintainable software that is verified to meet business rules by the language
+  compiler.
+
+  On our first day, we will do some /'warm up'/ exercises to think of our data
+  types, and functions as logical propositions, and explore some theorems from
+  logic /(universal constructions from a categorical perspective)/ available
+  for our re-use.
+
+  We will also introduce Functors as Quatifiers and link first order logic to
+  type constructors and imagine whole system proof building.
+
+  Let's start calling this: *Constructive Programming*
+
+* Correct by Construction
+** Referential Transparency:
+
+   You might correct me, and say we could, or have decided when something is an
+   algebra or a calculus or a recipe; that we have ways to disambiguate or
+   distinguish between synonyms, But
+
+*** Unit as output?
+
+    #+BEGIN_SRC scala
+      //What can you do here without breaking referencial transparency?
+      def func[A](a: A): Unit
+
+      //Is this useful?/
+      def alwaysTrue[A](a: A): Unit
+
+      //Is this different than alwaysTrue? can we guarantee subsequent
+      //transformations (steps)?
+      def println(s: String): Unit
+    #+END_SRC
+
+*** Values as output
+
+    #+BEGIN_SRC scala
+      //Can I substitute the result with this expresion?
+      def getTime(): DateTime
+
+      //Can I garauntee subsequent steps?
+      def open(path: String): File
+
+      //What pitfalls can come up here?
+      def logValue[A](a: A): A
+
+      //Why is this sub-optimal?
+      def build(a: ExpensiveArtifact): ExpensiveArtifact
+    #+END_SRC
+
+*** Shared state
+
+    #+BEGIN_SRC scala
+      //What could go wrong here?!
+      var cnt = 0
+      def countingMapper[A, B](l: List[A]: f: A => B): List[B]
+      def reset(): Unit
+    #+END_SRC
+
+** Total Functions:
+*** Expanding the co-domain
+    #+BEGIN_SRC scala
+      //What could go wrong here?!
+      //Will any string be convertible to an A?
+      def decode[A](s: String): A
+
+      // Will we always find an A?
+      def head[A](l: List[A]): A
+    #+END_SRC
+
+*** Contracting the domain
+    #+BEGIN_SRC scala
+      //What could go wrong here?!/
+      //Is division possible for all b?
+      def divide(a: Int, b: Int): Int
+
+      // Will we always need an A?
+      def head[A](l: List[A]): A
+    #+END_SRC
+
+*** Exhaustive matching
+    #+BEGIN_SRC scala
+      //What could go wrong here?!
+      //Can we garauntee subsequent transformations?
+
+      trait Shape
+
+      def center(shape: Shape): (Int, Int)
+    #+END_SRC
+
+** Termination:
+   #+BEGIN_SRC scala
+     //What could go wrong here?!
+     def use[A](a: A): A = use(a)
+   #+END_SRC
+
+* Simple Logic Excercises (but not predicate logic) (prove)
+  #+BEGIN_SRC scala
+    type /\[A, B] = (A, B)
+    type \/[A, B] = Either[A, B]
+    // type =>[A, B] = A => B
+    type <==>[A, B] = A => B /\ B => A
+    // What could go wrong here?!
+    type Not[A] = A => Nothing
+
+    // Corrolaries / Universal Constructions
+    def and_1[A, B](n: A /\ B): A = ???
+    def and_2[A, B](n: A /\ B): B = ???
+    def or_1[A, B](a: A): A \/ B = ???
+    def or_2[A, B](b: B): A \/ B = ???
+    def mp[A, B](a: A, f: A => B): B = ???
+    def exp[A, B, C](a: A, g: (A /\ B) => C): B => C = ???
+    def bicond_1[A, B](f: A <==> B): A => B = ???
+    def bicond_2[A, B](f: A <==> B): B => A = ???
+
+    def ex_falso_1[A](n: Nothing): A = ???
+    def ex_falso_2[A](n: Nothing): Not[A] = ???
+    def dist_law[A, B, C](h: A \/ (B \/ C)) = (A \/ B) \/ (A \/ C) = ???
+    def shunting[A, B, C](n: A /\ B => C) = A => B => C = ???
+  #+END_SRC
+
+* Sync up Exercises
+  Catching everyone up:
+
+  1. Come up with some domain objects in health and fitness.
+  1.1. Let's think of some products and some sums.
+  1.2. Let's think of some ands and ors.
+  2. Come up with some functions that interact with this domain.
+  2.1. Let's calculate the possible number of pure total functions that exist for those function types.
+  2.2. Let's think of some propositions.
+  3. Did we write any optics?
+  3.1. Let's write an optics library.
+
+* Quantifying (ways of leaving the zeroth order logic)
+  Scala's syntax does not help clarify quantifiers. But that is fine, the 3rd
+  encoding is one we will want to focus on.
+
+** Existential
+   #+BEGIN_SRC scala
+     //What could go wrong here?!
+     //Encoding 1
+     type Exists[P[_]] = P[A] forSome {type A}
+
+     def exampleFor1 = ???
+
+     //Encoding 2
+     trait ForSome { type A; def value: A }
+
+     def proofFor2[T](t: T): ForSome = new ForSome {
+       type A = T
+       val value = t
+     }
+
+     def exampleFor2 = ???
+
+     //Encoding 3 (Bounded)
+     trait Feature[P[_], A] {
+       def exist: P[A]
+     }
+
+     def proofFor3[P[_], A](t: P[A]): Feature[P, A] =
+       new Feature[P] { def exist = t }
+
+     def exampleFor3 = ???
+   #+END_SRC
+
+** Universal
+   #+BEGIN_SRC scala
+     //What could go wrong here?!
+     //Encoding 1/
+     trait Forall[P[_]] { def apply[A]: P[A] }
+
+     def proofFor1[P[_]](t: P[A]): Forall[P] =
+       new Forall { def apply = t }
+
+     def exampleFor1 = ???
+
+     //Encoding 3 (Bounded)
+     trait Feature[P[_], Q[_]] {
+       def apply(a: P[A]): Q[A]
+     }
+
+     def proofFor3[P[_], Q[_]](t: P[A] => Q[A]): Feature[P, Q] =
+       new Feature { def apply(p: P[A]) = t(p) }
+
+     def exampleFor3 = ???
+   #+END_SRC
+
+** Shapeless
+   Anecdotally, Shapeless smooths the edges of scala around quantification;
+   allowing for more fine grained implications:
+
+   #+BEGIN_SRC scala
+     //What could go wrong here?!/
+     //shapeless' poly/
+
+     object size extends Poly1 {
+
+       implicit def caseInt = at[Int](x => 1)
+
+       implicit def caseString = at[String](_.length)
+
+       implicit def caseTuple[T, U](implicit st : Case.Aux[T, Int],
+                                             su : Case.Aux[U, Int]) =
+         at[(T, U)](t => size(t._1)+size(t._2))
+
+     }
+   #+END_SRC
+
+** Optics
+
+   #+BEGIN_SRC scala
+     //What could go wrong here?!/
+     type Gender = Boolean
+     type BirthDate = LocalDate
+
+     case class Person(name: String, birthDate: BirthDate, gender: Gender)
+     case class Man(name: String, birthDate: BirthDate)
+
+     val personToMan: Person => Option[Man] = _ match {
+       case Person(name, birthDate, True) => Some(Man(name, birthDate))
+       case p => None
+
+     }
+
+     val manToPerson: Man => Person = m => Person(m.name, m.birthDate, True)
+
+     val getTime: IO[LocalDate] = ???
+
+     val personAge: Person => IO[Int] = p => getTime.map(p.birthDate.yearsBetween)
+
+     val manAge_1: Man => Option[IO[Int]] = ???
+     val manAge_2: Man => IO[Int] = ???
+
+     case class Lens[S, A](get: S => A, set: A => S => S) {
+       def modify(A => B): Lens[S, B] = ???
+
+       def compose[T](other: Lens[T, S]): Lens[T, A] = ???
+
+       def choice[T](other: Lens[T, A]): Lens[S \/ T, A] = ???
+
+       def split[T, B](other: Lens[T, B]): Lens[S /\ T, A /\ B] = ???
+
+     }
+   #+END_SRC
+
+** Functors
+
+   #+BEGIN_SRC scala
+     //What could go wrong here?!/
+     trait Functor[F[_]] {
+
+       def map[A, B](fa: F[A])(f: A => B): F[B] = ???
+
+     }
+   #+END_SRC
+
+** Twan van Laarhoven Lens
+   #+BEGIN_SRC scala
+     //What could go wrong here?!/
+     case class Const[A, B](a: A) implicit def constFunctor[AA] = new
+       Functor[Const[AA, ?]] {
+
+       def map[A, B](fa: Const[AA, A])(f: A => B): Const[AA, B] = ???
+
+     }
+
+     type TVL[S, A] = (Const[A, S], A => S) implicit def tvlFunctor[A] = new
+       Functor[TVL[?, A]] {
+
+       def map[S, T](fa: TVL[S, A])(f: S => T): TVL[T, A] = ???
+
+     } trait Lens[S, A] {
+       def apply[F[_]: Functor](A => F[A]): S => F[S]
+       def get(s: S): A = ???
+       def set(a: A, s: S): S = ???
+       def modify(A => B): Lens[S, B] = ???
+       def compose[T](other: Lens[T, S]): Lens[T, A] = ???
+       def choice[T](other: Lens[T, A]): Lens[S \/ T, A] = ???
+       def split[T, B](other: Lens[T, B]): Lens[S /\ T, A /\ B] = ???
+     }
+   #+END_SRC
+
+* Extras
+** Exponent laws, Logic and Cats
+   [[https://ncatlab.org/nlab/show/relation+between+type+theory+and+category+theory][https://ncatlab.org/nlab/show/relation+between+type+theory+and+category+theory]]
+   [[https://www.infoq.com/presentations/category-theory-propositions-principle]]
+
+   #+BEGIN_SRC scala
+     Arrow ~> a ^ c x b ^ c = (a x b) ^ c
+
+     ArrowChoice ~> c ^ a x c ^ b = c ^ (a + b)
+
+     FunctionK ~> b ^ (c x a) = b ^ a ^ c
+   #+END_SRC
+
+** Sudoku
+   #+BEGIN_SRC scala
+     // Let's write a sudoku solver/
+
+     type Digit = Int Refined Digit
+     type Cell = Option[Digit]
+     type Board = Array[Array[Cell]]
+     def solver: Board => Array[Board] = ???
+   #+END_SRC
+
+   [[https://www.cs.tufts.edu/~nr/cs257/archive/richard-bird/sudoku.pdf]]
+
+** Bowling Kata
+
+   [[https://deque.blog/2017/07/01/idris-bowling-katahttps://deque.blog/2017/07/01/idris-bowling-kata][https://deque.blog/2017/07/01/idris-bowling-kata]]
+
+** Color Theorem
+   [[https://www.ams.org/notices/200811/tx081101382p.pdf]]
+* References
+  - [[https://en.wikipedia.org/wiki/Predicate_functor_logic]]
+  - [[https://en.wikipedia.org/wiki/Curry%27s_paradox]]
+  - [[https://bartoszmilewski.com/2013/10/08/lenses-stores-and-yoneda/]]
+  - [[https://bartoszmilewski.com/2015/07/13/from-lenses-to-yoneda-embedding/]]
+  - [[https://github.com/SethTisue/lens-examples/blob/master/src/main/scala/VanLaarhovenLenses.scala]]
+  - [[https://github.com/hablapps/LensAlgebra]]
+  - [[https://github.com/hablapps/stateless]]

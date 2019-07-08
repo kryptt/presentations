@@ -1,0 +1,12 @@
+#+AUTHOR: Rodolfo Hansen
+#+KEYWORDS: ADT, Software, Types, CorrectByConstruction
+#+OPTIONS: toc:2
+#+OPTIONS: reveal_width:1600 reveal_height:1200
+#+REVEAL_HLEVEL: 2
+#+REVEAL_TRANS: slide
+#+REVEAL_THEME: moon
+#+REVEAL_HLEVEL: 1
+#+REVEAL_PLUGINS: (zoom,highlight,progress)
+#+REVEAL_MIN_SCALE: 0.8
+#+REVEAL_MAX_SCALE: 4.0
+#+REVEAL_MARGIN: 0
