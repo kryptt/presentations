@@ -1,4 +1,4 @@
-#+TITLE: A Hands-On Algebriac Approach to Software Construction
+#+TITLE: Constructive Programming - One - Logic
 #+INCLUDE: "./common.org"
 
 * Introduction:
@@ -131,18 +131,6 @@
     def shunting[A, B, C](n: A /\ B => C) = A => B => C = ???
   #+END_SRC
 
-* Sync up Exercises
-  Catching everyone up:
-
-  1. Come up with some domain objects in health and fitness.
-  1.1. Let's think of some products and some sums.
-  1.2. Let's think of some ands and ors.
-  2. Come up with some functions that interact with this domain.
-  2.1. Let's calculate the possible number of pure total functions that exist for those function types.
-  2.2. Let's think of some propositions.
-  3. Did we write any optics?
-  3.1. Let's write an optics library.
-
 * Quantifying (ways of leaving the zeroth order logic)
   Scala's syntax does not help clarify quantifiers. But that is fine, the 3rd
   encoding is one we will want to focus on.
@@ -198,100 +186,17 @@
      def exampleFor3 = ???
    #+END_SRC
 
-** Shapeless
-   Anecdotally, Shapeless smooths the edges of scala around quantification;
-   allowing for more fine grained implications:
+* Wrap Up Exercises
+  Catching everyone up:
 
-   #+BEGIN_SRC scala
-     //What could go wrong here?!/
-     //shapeless' poly/
-
-     object size extends Poly1 {
-
-       implicit def caseInt = at[Int](x => 1)
-
-       implicit def caseString = at[String](_.length)
-
-       implicit def caseTuple[T, U](implicit st : Case.Aux[T, Int],
-                                             su : Case.Aux[U, Int]) =
-         at[(T, U)](t => size(t._1)+size(t._2))
-
-     }
-   #+END_SRC
-
-** Optics
-
-   #+BEGIN_SRC scala
-     //What could go wrong here?!/
-     type Gender = Boolean
-     type BirthDate = LocalDate
-
-     case class Person(name: String, birthDate: BirthDate, gender: Gender)
-     case class Man(name: String, birthDate: BirthDate)
-
-     val personToMan: Person => Option[Man] = _ match {
-       case Person(name, birthDate, True) => Some(Man(name, birthDate))
-       case p => None
-
-     }
-
-     val manToPerson: Man => Person = m => Person(m.name, m.birthDate, True)
-
-     val getTime: IO[LocalDate] = ???
-
-     val personAge: Person => IO[Int] = p => getTime.map(p.birthDate.yearsBetween)
-
-     val manAge_1: Man => Option[IO[Int]] = ???
-     val manAge_2: Man => IO[Int] = ???
-
-     case class Lens[S, A](get: S => A, set: A => S => S) {
-       def modify(A => B): Lens[S, B] = ???
-
-       def compose[T](other: Lens[T, S]): Lens[T, A] = ???
-
-       def choice[T](other: Lens[T, A]): Lens[S \/ T, A] = ???
-
-       def split[T, B](other: Lens[T, B]): Lens[S /\ T, A /\ B] = ???
-
-     }
-   #+END_SRC
-
-** Functors
-
-   #+BEGIN_SRC scala
-     //What could go wrong here?!/
-     trait Functor[F[_]] {
-
-       def map[A, B](fa: F[A])(f: A => B): F[B] = ???
-
-     }
-   #+END_SRC
-
-** Twan van Laarhoven Lens
-   #+BEGIN_SRC scala
-     //What could go wrong here?!/
-     case class Const[A, B](a: A) implicit def constFunctor[AA] = new
-       Functor[Const[AA, ?]] {
-
-       def map[A, B](fa: Const[AA, A])(f: A => B): Const[AA, B] = ???
-
-     }
-
-     type TVL[S, A] = (Const[A, S], A => S) implicit def tvlFunctor[A] = new
-       Functor[TVL[?, A]] {
-
-       def map[S, T](fa: TVL[S, A])(f: S => T): TVL[T, A] = ???
-
-     } trait Lens[S, A] {
-       def apply[F[_]: Functor](A => F[A]): S => F[S]
-       def get(s: S): A = ???
-       def set(a: A, s: S): S = ???
-       def modify(A => B): Lens[S, B] = ???
-       def compose[T](other: Lens[T, S]): Lens[T, A] = ???
-       def choice[T](other: Lens[T, A]): Lens[S \/ T, A] = ???
-       def split[T, B](other: Lens[T, B]): Lens[S /\ T, A /\ B] = ???
-     }
-   #+END_SRC
+  1. Pick a domain, and come up with some domain objects for it.
+  1.1. Let's think of some products and some sums.
+  1.2. Let's think of some ands and ors.
+  2. Come up with some functions that interact with this domain.
+  2.1. Let's calculate the possible number of pure total functions that exist for those function types.
+  2.2. Let's think of some propositions.
+  3. Did we write any optics?
+  3.1. Let's write an optics library.
 
 * Extras
 ** Exponent laws, Logic and Cats
@@ -318,17 +223,6 @@
 
    [[https://www.cs.tufts.edu/~nr/cs257/archive/richard-bird/sudoku.pdf]]
 
-** Bowling Kata
-
-   [[https://deque.blog/2017/07/01/idris-bowling-katahttps://deque.blog/2017/07/01/idris-bowling-kata][https://deque.blog/2017/07/01/idris-bowling-kata]]
-
-** Color Theorem
-   [[https://www.ams.org/notices/200811/tx081101382p.pdf]]
 * References
   - [[https://en.wikipedia.org/wiki/Predicate_functor_logic]]
   - [[https://en.wikipedia.org/wiki/Curry%27s_paradox]]
-  - [[https://bartoszmilewski.com/2013/10/08/lenses-stores-and-yoneda/]]
-  - [[https://bartoszmilewski.com/2015/07/13/from-lenses-to-yoneda-embedding/]]
-  - [[https://github.com/SethTisue/lens-examples/blob/master/src/main/scala/VanLaarhovenLenses.scala]]
-  - [[https://github.com/hablapps/LensAlgebra]]
-  - [[https://github.com/hablapps/stateless]]
