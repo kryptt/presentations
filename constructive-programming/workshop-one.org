@@ -195,10 +195,22 @@
   2. Come up with some functions that interact with this domain.
   2.1. Let's calculate the possible number of pure total functions that exist for those function types.
   2.2. Let's think of some propositions.
-  3. Did we write any optics?
-  3.1. Let's write an optics library.
+  
+** Possible suggestion: ATM (Automatic Teller Machine)
+
+  1. Person's Account Balance.
+  1. Person's Name, Email and Details.
+  1. Transactions between people.
+  1. New type of account: Legal Business.
+  1. Add minimum transaction ammount and different fee for person and business.
+  
+  
 
 * Extras
+** Optics
+*** Did we write any optics?
+  1. Let's write a library, for what we have written already. This type of code is called Optics. 
+  
 ** Exponent laws, Logic and Cats
    [[https://ncatlab.org/nlab/show/relation+between+type+theory+and+category+theory][https://ncatlab.org/nlab/show/relation+between+type+theory+and+category+theory]]
    [[https://www.infoq.com/presentations/category-theory-propositions-principle]]
