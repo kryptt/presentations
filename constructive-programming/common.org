@@ -1,7 +1,10 @@
-#+AUTHOR: Rodolfo Hansen
 #+KEYWORDS: ADT, Software, Types, CorrectByConstruction
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usepackage{indentfirst}
+#+LaTeX_HEADER: \usepackage[a4paper, margin=2cm]{geometry}
 #+OPTIONS: toc:2
 #+OPTIONS: reveal_width:1600 reveal_height:1200
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
 #+REVEAL_HLEVEL: 2
 #+REVEAL_TRANS: slide
 #+REVEAL_THEME: moon

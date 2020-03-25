@@ -108,27 +108,39 @@
 
 * Simple Logic Excercises (but not predicate logic) (prove)
   #+BEGIN_SRC scala
+
+    type And[A, B] = (A, B)
+    type Or[A, B] = Either[A, B]
     type /\[A, B] = (A, B)
     type \/[A, B] = Either[A, B]
     // type =>[A, B] = A => B
-    type <==>[A, B] = A => B /\ B => A
+    type <==>[A, B] = (A => B) /\ (B => A)
     // What could go wrong here?!
     type Not[A] = A => Nothing
 
     // Corrolaries / Universal Constructions
-    def and_1[A, B](n: A /\ B): A = ???
-    def and_2[A, B](n: A /\ B): B = ???
-    def or_1[A, B](a: A): A \/ B = ???
-    def or_2[A, B](b: B): A \/ B = ???
-    def mp[A, B](a: A, f: A => B): B = ???
-    def exp[A, B, C](a: A, g: (A /\ B) => C): B => C = ???
-    def bicond_1[A, B](f: A <==> B): A => B = ???
-    def bicond_2[A, B](f: A <==> B): B => A = ???
+    def and_1[A, B](n: A /\ B): A = n._1
+    def and_2[A, B](n: A /\ B): B = n._2
+    def or_1[A, B](a: A): A \/ B = Left(a)
+    def or_2[A, B](b: B): A \/ B = Right(b)
+    def mp[A, B](a: A, f: A => B): B = f(a)
+    def exp[A, B, C](a: A, g: (A /\ B) => C): B => C = b => g(a, b)
+    def bicond_1[A, B](f: A <==> B): A => B = f._1
+    def bicond_2[A, B](f: A <==> B): B => A = f._2
 
-    def ex_falso_1[A](n: Nothing): A = ???
-    def ex_falso_2[A](n: Nothing): Not[A] = ???
-    def dist_law[A, B, C](h: A \/ (B \/ C)) = (A \/ B) \/ (A \/ C) = ???
-    def shunting[A, B, C](n: A /\ B => C) = A => B => C = ???
+    def dist_law[A, B, C](h: A \/ (B /\ C)): (A /\ B) \/ (A /\ C) = ???
+
+    def dist_law_2[A, B, C](h: A Or (B And C)): (A Or B) And (A Or C) =
+      h
+
+    def dist_law_1[A, B, C](h: A And (B Or C)): (A Or B) And (A Or C) =
+      ((), ())
+
+    def shunting[A, B, C](n: A /\ B => C): A => B => C = ???
+
+    def ex_falso_1[A](n: Nothing): A = n
+    def ex_falso_2[A](n: Nothing): Not[A] = (a) => n
+
   #+END_SRC
 
 * Quantifying (ways of leaving the zeroth order logic)
@@ -195,7 +207,7 @@
   2. Come up with some functions that interact with this domain.
   2.1. Let's calculate the possible number of pure total functions that exist for those function types.
   2.2. Let's think of some propositions.
-  
+
 ** Possible suggestion: ATM (Automatic Teller Machine)
 
   1. Person's Account Balance.
@@ -203,14 +215,14 @@
   1. Transactions between people.
   1. New type of account: Legal Business.
   1. Add minimum transaction ammount and different fee for person and business.
-  
-  
+
+
 
 * Extras
 ** Optics
 *** Did we write any optics?
-  1. Let's write a library, for what we have written already. This type of code is called Optics. 
-  
+  1. Let's write a library, for what we have written already. This type of code is called Optics.
+
 ** Exponent laws, Logic and Cats
    [[https://ncatlab.org/nlab/show/relation+between+type+theory+and+category+theory][https://ncatlab.org/nlab/show/relation+between+type+theory+and+category+theory]]
    [[https://www.infoq.com/presentations/category-theory-propositions-principle]]
